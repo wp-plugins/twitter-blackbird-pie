@@ -4,8 +4,8 @@ Donate link: http://themergency.com/twitter-blackbird-pie-wordpress-plugin/
 Tags: twitter, blackbird pie
 Requires at least: 2.9.2
 Tested up to: 2.9.2
-Stable tag: 0.1.5
-Version: 0.1.5
+Stable tag: 0.2
+Version: 0.2
 
 Add awesome looking embedded HTML representations of actual tweets in your blog posts just by adding simple shortcodes.
 
@@ -22,7 +22,7 @@ The plugins has the following features:
     *   Better use of the Twitter profile background image and color and tiling.
     *   Uses the Twitter profile text color.
     *   Uses the Twitter profile link color.
-*   Uses the jQuery Time Ago plugin to display a "real time" datetime of when the tweet was tweeted.
+*   Dates are displayed like on Twitter i.e. "real time" datetime of when the tweet was tweeted. (see changelog)
 *   Auto-linking of URLs, hashtags, usernames within the tweet text.
 *   Use either the id or full URL of the tweet.
 
@@ -45,6 +45,9 @@ The plugins has the following features:
 * Updated the CSS incl. adding a few "!important" rules to make sure the theme CSS does not override it.
 * Fixed bug for profile background image tile not working.
 * Fixed bug for the date or the tweet. It now takes into account the timezone.
+
+= 0.2 =
+* Removed dependency on Jquery TimeAgo plugin and using a php function instead
 * PLEASE UPGRADE!
 
 == Frequently Asked Questions ==

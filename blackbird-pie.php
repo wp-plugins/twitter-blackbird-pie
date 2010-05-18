@@ -14,15 +14,54 @@ class BlackbirdPie {
 	//constructor
 	function BlackbirdPie() {
 		if (!is_admin()) {
-			add_action("wp_enqueue_scripts", array(&$this, "wp_enqueue_scripts"));
 			add_shortcode("blackbirdpie", array(&$this, "shortcode"));
 		}
 	}
 	
-	function wp_enqueue_scripts()
-	{
-		wp_enqueue_script("jquery-timeago", plugins_url("/js/jquery.timeago.js", __FILE__), array("jquery"));
-		wp_enqueue_script("blackbird-pie", plugins_url("/js/blackbirdpie.js", __FILE__), array("jquery", "jquery-timeago"));
+	/*
+	modified from http://www.php.net/manual/en/function.time.php#96097
+	*/
+    function ago($datefrom, $format)
+    {
+        $dateto = time();
+        
+        // Calculate the difference in seconds betweeen
+        // the two timestamps
+
+        $difference = $dateto - $datefrom;
+
+        // Based on the interval, determine the
+        // number of units between the two dates
+        // From this point on, you would be hard
+        // pushed telling the difference between
+        // this function and DateDiff. If the $datediff
+        // returned is 1, be sure to return the singular
+        // of the unit, e.g. 'day' rather 'days'
+    
+        switch(true)
+        {
+            // If difference is less than 60 seconds,
+            // seconds is a good interval of choice
+            case(strtotime('-1 min', $dateto) < $datefrom):
+                $datediff = $difference;
+                $res = 'less than a minute ago';
+                break;
+            // If difference is between 60 seconds and
+            // 60 minutes, minutes is a good interval
+            case(strtotime('-1 hour', $dateto) < $datefrom):
+                $datediff = floor($difference / 60);
+                $res = ($datediff==1) ? $datediff.' minute ago' : $datediff.' minutes ago';
+                break;
+            // If difference is between 1 hour and 24 hours
+            // hours is a good interval
+            case(strtotime('-1 day', $dateto) < $datefrom):
+                $datediff = floor($difference / 60 / 60);
+                $res = ($datediff==1) ? 'about '.$datediff.' hour ago' : 'about '.$datediff.' hours ago';
+                break;				
+            default:
+				$res = date($format, $datefrom);
+        }
+        return $res;
 	}
 	
 	function shortcode($atts) {
@@ -76,9 +115,9 @@ class BlackbirdPie {
 				$profileLinkColor = $data->contents->user->profile_link_color;
 				$createdAt = $data->contents->created_at;
 				$utcOffset = $data->contents->user->utc_offset;
-				if (strlen($utcOffset)==0) $utcOffset = '0';
-				$timeStamp = strtotime($createdAt.' +'.$utcOffset.' seconds');
-				
+
+				$timeStamp = strtotime($createdAt); //.' +'.$utcOffset.' seconds');
+
 				$tweetURL = "http://twitter.com/$screenName/status/$id";
 				
 				$dateFormat = get_option('date_format');
@@ -86,7 +125,13 @@ class BlackbirdPie {
 				$timeFormat = get_option('time_format');
 				if (strlen($timeFormat)==0) $timeFormat = __('g:i a');
 				
-				$friendlyDate = date($dateFormat.' '.$timeFormat, $timeStamp);
+				$dateTimeFormat = $dateFormat.' '.$timeFormat;
+				
+				$friendlyDate = date($dateTimeFormat, $timeStamp);
+				
+				$timeAgo = $this->ago($timeStamp, $dateTimeFormat);
+				
+				//echo '|'.$timeAgo.'|';
 
 				if ($screenName != $realName) {
 					$realNameHTML = "<br/>$realName";
@@ -95,7 +140,7 @@ class BlackbirdPie {
 				$tweetHTML = "<!-- tweet id : $id -->
 			<style type='text/css'>#bbpBox_$id{background:#$profileBackgroundColor url($profileBackgroundImage) $profileBackgroundTileHTML !important;padding:20px;}#bbpBox_$id p.bbpTweet{background:#fff;padding:10px 12px 10px 12px !important;margin:0 !important;min-height:48px;color:#$profileTextColor !important;font-size:18px !important;line-height:22px;-moz-border-radius:5px;-webkit-border-radius:5px}#bbpBox_$id p.bbpTweet a {color:#$profileLinkColor !important}#bbpBox_$id p.bbpTweet span.metadata{display:block;width:100%;clear:both;margin-top:8px  !important;padding-top:12px !important;height:40px;border-top:1px solid #e6e6e6}#bbpBox_$id p.bbpTweet span.metadata span.author{line-height:19px}#bbpBox_$id p.bbpTweet span.metadata span.author img{float:left;margin:0 7px 0px 0px !important;width:38px;height:38px;padding:0 !important;border:none !important;}#bbpBox_$id p.bbpTweet a:hover{text-decoration:underline}#bbpBox_$id p.bbpTweet span.timestamp{font-size:12px;display:block}</style>
 			 
-			<div id='bbpBox_$id'><p class='bbpTweet'>$tweetText<span class='timestamp'><a title='tweeted on $friendlyDate' class='timeago' href='$tweetURL'>$timeStamp</a> via $source</span><span class='metadata'><span class='author'><a href='http://twitter.com/$screenName'><img src='$profilePic' /></a><strong><a href='http://twitter.com/$screenName'>$screenName</a></strong>$realNameHTML</span></span></p></div>
+			<div id='bbpBox_$id'><p class='bbpTweet'>$tweetText<span class='timestamp'><a title='tweeted on $friendlyDate' href='$tweetURL'>$timeAgo</a> via $source</span><span class='metadata'><span class='author'><a href='http://twitter.com/$screenName'><img src='$profilePic' /></a><strong><a href='http://twitter.com/$screenName'>$screenName</a></strong>$realNameHTML</span></span></p></div>
 			<!-- end of tweet -->";
 
 				// save the tweet HTML into a custom field
