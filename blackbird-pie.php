@@ -3,7 +3,7 @@
 Plugin Name: Blackbird Pie
 Plugin URI: http://themergency.com
 Description: Add tweet visualizations to your site as can be found at http://media.twitter.com/blackbird-pie/
-Version: 0.2.1
+Version: 0.2.2
 Author: Brad Vincent
 Author URI: http://themergency.com
 License: GPL2
@@ -63,7 +63,14 @@ class BlackbirdPie {
         return $res;
 	}
 	
+	function decode($value) {
+		$json = new Services_JSON();
+		return $json->decode($value);
+	}
+	
 	function shortcode($atts) {
+		include_once('json.php');
+	
 		// Extract the attributes
 		extract(shortcode_atts(array(
 			"id" => false,
@@ -91,14 +98,14 @@ class BlackbirdPie {
 			if ($post_id > 0) {
 				//try and see if we have the tweet JSON data already saved
 				$jsonData = get_post_meta($post_id, 'bbp_status_json_'.$id, true);
-				if (strlen($jsonData)>0)
-					$data = json_decode($jsonData);
+				$data = $this->decode($jsonData);
 			}
 			
 			if (!$data) {
 				//we need to get the tweet json data from twitter API
 				$data = $this->get_tweet_details($id);
 				$saveData = true;
+				//echo 'FETCH FROM TWITTER';
 			}
 			
 			$http_code = $data->status->http_code;
@@ -176,7 +183,7 @@ class BlackbirdPie {
 		if (gettype($result) == "object" && get_class($result) == "WP_Error")
 			return NULL;
 		
-		return json_decode($result["body"]);
+		return $this->decode($result["body"]);
 	}
 }
 
