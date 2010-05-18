@@ -5,8 +5,9 @@ Tags: twitter, blackbird pie
 Requires at least: 2.9.2
 Tested up to: 2.9.2
 Stable tag: 0.1.5
+Version: 0.1.5
 
-Add the Twitter @Anywhere functionality to your blog. Automatically linkify Twitter usernames, add hovercards, followbuttons and tweet boxes.
+Add awesome looking embedded HTML representations of actual tweets in your blog posts just by adding simple shortcodes.
 
 == Description ==
 
