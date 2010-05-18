@@ -3,7 +3,7 @@
 Plugin Name: Blackbird Pie
 Plugin URI: http://themergency.com
 Description: Add tweet visualizations to your site as can be found at http://media.twitter.com/blackbird-pie/
-Version: 0.2
+Version: 0.2.1
 Author: Brad Vincent
 Author URI: http://themergency.com
 License: GPL2
@@ -21,8 +21,7 @@ class BlackbirdPie {
 	/*
 	modified from http://www.php.net/manual/en/function.time.php#96097
 	*/
-    function ago($datefrom, $format)
-    {
+    function ago($datefrom, $format) {
         $dateto = time();
         
         // Calculate the difference in seconds betweeen
@@ -85,16 +84,21 @@ class BlackbirdPie {
 				global $post;
 				$post_id = $post->ID;
 			}
+			
+			$jsonData = '';
 		
-			if ($post_id > 0)
-			{
-				//try and see if we have the blackbird status HTML already saved
-				$blackbird = get_post_meta($post_id, 'bbp_status_'.$id, true);
-				if (!empty($blackbird))
-					return $blackbird;
+			if ($post_id > 0) {
+				//try and see if we have the tweet JSON data already saved
+				$jsonData = get_post_meta($post_id, 'bbp_status_json_'.$id, true);
 			}
-		
-			$data = $this->get_tweet_details($id);
+			
+			if (strlen($jsonData)==0) {
+				//we need to get the tweet json data from twitter API
+				$jsonData = $this->get_tweet_details($id);
+			}
+			
+			//echo $jsonData;
+			$data = json_decode($jsonData); 
 			$http_code = $data->status->http_code;
 
 			if ($http_code == "200") {
@@ -131,8 +135,6 @@ class BlackbirdPie {
 				
 				$timeAgo = $this->ago($timeStamp, $dateTimeFormat);
 				
-				//echo '|'.$timeAgo.'|';
-
 				if ($screenName != $realName) {
 					$realNameHTML = "<br/>$realName";
 				}
@@ -144,8 +146,8 @@ class BlackbirdPie {
 			<!-- end of tweet -->";
 
 				// save the tweet HTML into a custom field
-				if (!empty($tweetHTML) && $post_id > 0)
-					update_post_meta($post_id, 'bbp_status_'.$id, $tweetHTML);
+				if ($post_id > 0)
+					update_post_meta($post_id, 'bbp_status_json_'.$id, $jsonData);
 
 				return $tweetHTML;
 			} else {
@@ -171,7 +173,7 @@ class BlackbirdPie {
 		if (gettype($result) == "object" && get_class($result) == "WP_Error")
 			return NULL;
 		
-		return json_decode($result["body"]);
+		return $result["body"];
 	}
 }
 

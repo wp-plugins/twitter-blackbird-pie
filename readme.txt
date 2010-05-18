@@ -4,8 +4,7 @@ Donate link: http://themergency.com/twitter-blackbird-pie-wordpress-plugin/
 Tags: twitter, blackbird pie
 Requires at least: 2.9.2
 Tested up to: 2.9.2
-Stable tag: 0.2
-Version: 0.2
+Stable tag: 0.2.1
 
 Add awesome looking embedded HTML representations of actual tweets in your blog posts just by adding simple shortcodes.
 
@@ -48,6 +47,9 @@ The plugins has the following features:
 
 = 0.2 =
 * Removed dependency on Jquery TimeAgo plugin and using a php function instead
+
+= 0.2.1 =
+* Fixed bug introduced in ver 0.2 where the time was not updating (e.g. "1 hour ago" was being saved into the custom field
 * PLEASE UPGRADE!
 
 == Frequently Asked Questions ==
