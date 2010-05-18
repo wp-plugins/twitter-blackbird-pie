@@ -85,23 +85,30 @@ class BlackbirdPie {
 				$post_id = $post->ID;
 			}
 			
-			$jsonData = '';
+			$data = false;
+			$saveData = false;
 		
 			if ($post_id > 0) {
 				//try and see if we have the tweet JSON data already saved
 				$jsonData = get_post_meta($post_id, 'bbp_status_json_'.$id, true);
+				if (strlen($jsonData)>0)
+					$data = json_decode($jsonData);
 			}
 			
-			if (strlen($jsonData)==0) {
+			if (!$data) {
 				//we need to get the tweet json data from twitter API
-				$jsonData = $this->get_tweet_details($id);
+				$data = $this->get_tweet_details($id);
+				$saveData = true;
 			}
 			
-			//echo $jsonData;
-			$data = json_decode($jsonData); 
 			$http_code = $data->status->http_code;
-
+			
 			if ($http_code == "200") {
+			
+				// save the tweet JSON data into a custom field
+				if ($saveData && $post_id > 0)
+					update_post_meta($post_id, 'bbp_status_json_'.$id, json_encode($data));			
+			
 				require_once('Autolink.php');
 				$autolinker = new Twitter_Autolink();
 				$screenName = $data->contents->user->screen_name;
@@ -145,10 +152,6 @@ class BlackbirdPie {
 			<div id='bbpBox_$id'><p class='bbpTweet'>$tweetText<span class='timestamp'><a title='tweeted on $friendlyDate' href='$tweetURL'>$timeAgo</a> via $source</span><span class='metadata'><span class='author'><a href='http://twitter.com/$screenName'><img src='$profilePic' /></a><strong><a href='http://twitter.com/$screenName'>$screenName</a></strong>$realNameHTML</span></span></p></div>
 			<!-- end of tweet -->";
 
-				// save the tweet HTML into a custom field
-				if ($post_id > 0)
-					update_post_meta($post_id, 'bbp_status_json_'.$id, $jsonData);
-
 				return $tweetHTML;
 			} else {
 				return "There was a problem connecting to Twitter.";
@@ -173,7 +176,7 @@ class BlackbirdPie {
 		if (gettype($result) == "object" && get_class($result) == "WP_Error")
 			return NULL;
 		
-		return $result["body"];
+		return json_decode($result["body"]);
 	}
 }
 

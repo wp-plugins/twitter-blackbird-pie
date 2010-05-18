@@ -50,6 +50,7 @@ The plugins has the following features:
 
 = 0.2.1 =
 * Fixed bug introduced in ver 0.2 where the time was not updating (e.g. "1 hour ago" was being saved into the custom field
+* Fixed JSON encoding bug
 * PLEASE UPGRADE!
 
 == Frequently Asked Questions ==
