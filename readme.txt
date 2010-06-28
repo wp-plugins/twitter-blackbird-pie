@@ -3,8 +3,8 @@ Contributors: bradvin
 Donate link: http://themergency.com/twitter-blackbird-pie-wordpress-plugin/
 Tags: twitter, blackbird pie
 Requires at least: 2.9.2
-Tested up to: 2.9.2
-Stable tag: 0.2.3
+Tested up to: 3.0
+Stable tag: 0.2.3.5
 
 Add awesome looking embedded HTML representations of actual tweets in your blog posts just by adding simple shortcodes.
 
@@ -55,16 +55,18 @@ The plugins has the following features:
 
 = 0.2.2 =
 * Fixed bug introduced in ver 0.2.1 where Twitter API was being called on every request
-* PLEASE UPGRADE!
 
 = 0.2.3 =
 * Fixed bug with non english characters showing as numbers in the tweet text
+
+= 0.2.3.5 =
+* Fixed a bug where the tweet was blank when it included quotes (")
 * PLEASE UPGRADE!
 
 == Frequently Asked Questions ==
 
 = How do I use this plugin? =
-You insert shortcodes into your blog posts or pages, e.g. [blackbirdpie id="13794126295"]
+You insert shortcodes into your blog posts or pages, e.g. [blackbirdpie id="13794126295"] or [blackbirdpie url="http://twitter.com/themergency/status/13968912427"]
 
 == Upgrade Notice ==
 
