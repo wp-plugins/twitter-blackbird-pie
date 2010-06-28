@@ -114,7 +114,7 @@ class BlackbirdPie {
 				$saveData = true;
 				require_once('unicode.php');
 				$oUnicodeReplace = new unicode_replace_entities();
-				$data->contents->text = $oUnicodeReplace->UTF8entities($data->contents->text);
+				$data->contents->text = addslashes($oUnicodeReplace->UTF8entities($data->contents->text));
 				//echo 'FETCH FROM TWITTER';
 			}
 			
@@ -131,8 +131,8 @@ class BlackbirdPie {
 				$autolinker = new Twitter_Autolink();
 				$screenName = $data->contents->user->screen_name;
 				$realName = $data->contents->user->name;
-				
-				$tweetText = $autolinker->autolink($data->contents->text);
+				echo $data->contents->text;
+				$tweetText = stripslashes($autolinker->autolink($data->contents->text));
 				$source = $data->contents->source;
 				$profilePic = $data->contents->user->profile_image_url;
 				$profileBackgroundColor = $data->contents->user->profile_background_color;
