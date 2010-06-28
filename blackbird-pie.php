@@ -131,7 +131,7 @@ class BlackbirdPie {
 				$autolinker = new Twitter_Autolink();
 				$screenName = $data->contents->user->screen_name;
 				$realName = $data->contents->user->name;
-				echo $data->contents->text;
+				//echo $data->contents->text;
 				$tweetText = stripslashes($autolinker->autolink($data->contents->text));
 				$source = $data->contents->source;
 				$profilePic = $data->contents->user->profile_image_url;
