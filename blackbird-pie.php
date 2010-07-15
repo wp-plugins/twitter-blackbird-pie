@@ -3,7 +3,7 @@
 Plugin Name: Blackbird Pie
 Plugin URI: http://themergency.com
 Description: Add tweet visualizations to your site as can be found at http://media.twitter.com/blackbird-pie/
-Version: 0.2.5
+Version: 0.2.6
 Author: Brad Vincent
 Author URI: http://themergency.com
 License: GPL2
@@ -104,7 +104,7 @@ class BlackbirdPie {
 		
 			if ($post_id > 0) {
 				//try and see if we have the tweet JSON data already saved
-				$jsonData = get_post_meta($post_id, 'bbp_status_json_'.$id, true);
+				$jsonData = get_post_meta($post_id, 'blackbirdpie_'.$id, true);
 				$data = $this->decode($jsonData);
 			}
 			
@@ -112,9 +112,13 @@ class BlackbirdPie {
 				//we need to get the tweet json data from twitter API
 				$data = $this->get_tweet_details($id);
 				$saveData = true;
+				
 				require_once('unicode.php');
 				$oUnicodeReplace = new unicode_replace_entities();
+				
 				$data->contents->text = addslashes($oUnicodeReplace->UTF8entities($data->contents->text));
+				$data->contents->user->screen_name = addslashes($oUnicodeReplace->UTF8entities($data->contents->user->screen_name));
+				$data->contents->user->name = addslashes($oUnicodeReplace->UTF8entities($data->contents->user->name));
 				//echo 'FETCH FROM TWITTER';
 			}
 			
@@ -124,13 +128,13 @@ class BlackbirdPie {
 			
 				// save the tweet JSON data into a custom field
 				if ($saveData && $post_id > 0) {
-					update_post_meta($post_id, 'bbp_status_json_'.$id, $this->encode($data));			
+					update_post_meta($post_id, 'blackbirdpie_'.$id, $this->encode($data));			
 				}
 			
 				require_once('Autolink.php');
 				$autolinker = new Twitter_Autolink();
-				$screenName = $data->contents->user->screen_name;
-				$realName = $data->contents->user->name;
+				$screenName = stripslashes($data->contents->user->screen_name);
+				$realName = stripslashes($data->contents->user->name);
 				//echo $data->contents->text;
 				$tweetText = stripslashes($autolinker->autolink($data->contents->text));
 				$source = $data->contents->source;
