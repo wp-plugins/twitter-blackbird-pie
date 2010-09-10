@@ -3,7 +3,7 @@
 Plugin Name: Blackbird Pie
 Plugin URI: http://themergency.com
 Description: Add tweet visualizations to your site as can be found at http://media.twitter.com/blackbird-pie/
-Version: 0.2.6
+Version: 0.3
 Author: Brad Vincent
 Author URI: http://themergency.com
 License: GPL2
@@ -11,12 +11,49 @@ License: GPL2
 
 class BlackbirdPie {
 	
+	var $pluginname = "blackbirdpie";
+	
 	//constructor
 	function BlackbirdPie() {
+	
+		define($this->pluginname.'_ABSPATH', WP_PLUGIN_DIR.'/'.plugin_basename( dirname(__FILE__) ).'/' );
+		define($this->pluginname.'_URLPATH', WP_PLUGIN_URL.'/'.plugin_basename( dirname(__FILE__) ).'/' );
+
 		if (!is_admin()) {
-			add_shortcode("blackbirdpie", array(&$this, "shortcode"));
+			add_shortcode($this->pluginname, array(&$this, "shortcode"));
+			wp_embed_register_handler( $this->pluginname, "/^http:\/\/twitter\.com\/(\w+)\/status(es)*\/(\d+)$/", array(&$this, "blackbirdpie_embed_handler") );
+		} else {
+			$this->add_editor_button();
 		}
+
 	}
+	
+	function add_editor_button() {
+		// Don't bother doing this stuff if the current user lacks permissions
+		if ( ! current_user_can('edit_posts') && ! current_user_can('edit_pages') )
+			return;
+
+		// Add only in Rich Editor mode
+		if ( get_user_option('rich_editing') == 'true') { 
+			add_filter("mce_external_plugins", array(&$this, "add_myplugin_tinymce_plugin") );
+			add_filter("teeny_mce_buttons", array(&$this, "register_myplugin_button") );
+			add_filter("mce_buttons", array(&$this, "register_myplugin_button") );
+		}		
+	}
+	
+	function register_myplugin_button($buttons) {
+		echo 'testing';
+		array_push($buttons, "separator", $this->pluginname);
+		print_r($buttons);
+		return $buttons;
+	}
+	 
+	// Load the TinyMCE plugin : editor_plugin.js (wp2.5)
+	function add_myplugin_tinymce_plugin($plugin_array) {
+		
+		$plugin_array[$this->pluginname] = blackbirdpie_URLPATH.'tinymce/editor_plugin_blackbirdpie.js';
+		return $plugin_array;
+	}	
 	
 	/*
 	modified from http://www.php.net/manual/en/function.time.php#96097
@@ -84,11 +121,19 @@ class BlackbirdPie {
 			"url" => false
 		), $atts));
 		
+		//extract the status ID from $id (incase someone incorrectly used a shortcode lie [blackbirdpie id="http://twitter..."])
+		if ($id) {
+			if (preg_match('/^http:\/\/twitter\.com\/(\w+)\/status(es)*\/(\d+)$/', $id, $matches)) {
+				$id = $matches[3];
+			}
+		}
+		
+		//extract the status ID from $url
 		if ($url) {
 			if (preg_match('/^http:\/\/twitter\.com\/(\w+)\/status(es)*\/(\d+)$/', $url, $matches)) {
 				$id = $matches[3];
 			}
-		} 
+		}
 		
 		if ($id) {
 		
@@ -104,7 +149,7 @@ class BlackbirdPie {
 		
 			if ($post_id > 0) {
 				//try and see if we have the tweet JSON data already saved
-				$jsonData = get_post_meta($post_id, 'blackbirdpie_'.$id, true);
+				$jsonData = get_post_meta($post_id, '_'.$this->pluginname.'_'.$id, true);
 				$data = $this->decode($jsonData);
 			}
 			
@@ -128,7 +173,7 @@ class BlackbirdPie {
 			
 				// save the tweet JSON data into a custom field
 				if ($saveData && $post_id > 0) {
-					update_post_meta($post_id, 'blackbirdpie_'.$id, $this->encode($data));			
+					update_post_meta($post_id, '_'.$this->pluginname.'_'.$id, $this->encode($data));			
 				}
 			
 				require_once('Autolink.php');
@@ -185,7 +230,6 @@ class BlackbirdPie {
 	}
 
 	function get_tweet_details($id) {
-		
 		$encoded = urlencode("http://api.twitter.com/1/statuses/show.json?id={$id}");
 		
 		$request_url = "http://media.twitter.com/tweetproxy/?url={$encoded}";
@@ -201,8 +245,13 @@ class BlackbirdPie {
 		
 		return $this->decode($result["body"]);
 	}
+	
+	function blackbirdpie_embed_handler( $matches, $attr, $url, $rawattr ) {
+		return $this->shortcode( array( 'url' => $url ) );
+	}
 }
 
 add_action("init", create_function('', 'global $BlackbirdPie; $BlackbirdPie = new BlackbirdPie();'));
+
 
 ?>

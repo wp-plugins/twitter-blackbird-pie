@@ -3,8 +3,8 @@ Contributors: bradvin
 Donate link: http://themergency.com/twitter-blackbird-pie-wordpress-plugin/
 Tags: twitter, blackbird pie
 Requires at least: 2.9.2
-Tested up to: 3.0
-Stable tag: 0.2.6
+Tested up to: 3.0.1
+Stable tag: 0.3
 
 Add awesome looking embedded HTML representations of actual tweets in your blog posts just by adding simple shortcodes.
 
@@ -14,10 +14,13 @@ Add awesome looking embedded HTML representations of actual tweets in your blog 
 
 The plugins has the following features:
 
-*   UPDATE : Now supports non-english tweets!
+*   TinyMCE editor button to easily search and embed a tweet
+*   Support for the built-in embeds API (oEmbed), so a tweet URL on it's own line will be converted to a "pie"
+*   Supports non-english tweets & names!
 *   Exact same look and feel as the respective Twitter profile.
-*   Allows for multiple "pies" in a single post (as seen in the examples below).
+*   Allows for multiple "pies" in a single post.
 *   Stores the generated HTML in a custom field (if possible), so the Twitter API is only called the first time.
+*   The Custom fields used to store the tweet are hidden
 *   Slightly better styling than the original Blackbird Pie
     *   Better use of the Twitter profile background image and color and tiling.
     *   Uses the Twitter profile text color.
@@ -35,6 +38,8 @@ The plugins has the following features:
 == Screenshots ==
 
 1. Example output. See it in action at http://themergency.com/twitter-blackbird-pie-wordpress-plugin/
+2. Use the tinyMCE editor custom blackbirb button to embed your tweet
+3. Search someone's twitter timeline to pick which tweet to embed
 
 == Changelog ==
 
@@ -66,6 +71,12 @@ The plugins has the following features:
 
 = 0.2.6 =
 * Fixed a bug with non english usernames showing as numbers
+
+= 0.3 =
+* Added a button into the tinyMCE editor to easily embed a tweet
+* Added support for oEmbed, so embed your tweets just by pasting the tweet URL on it's own line. Read more here : http://www.viper007bond.com/2009/10/13/easy-embeds-for-wordpress-2-point-9/
+* Changed the custom fields to be hidden (they are prefixed with an underscore)
+* Fixed some bugs
 * PLEASE UPGRADE!
 
 == Frequently Asked Questions ==
