@@ -10,7 +10,7 @@ Add awesome looking embedded HTML representations of actual tweets in your blog 
 
 == Description ==
 
-Add awesome looking embedded HTML representations of actual tweets in your blog posts just by adding simple shortcodes. Please read the blog post at http://themergency.com/twitter-blackbird-pie-wordpress-plugin/ for more info and to see the plugin in action.
+Add awesome looking embedded HTML representations of actual tweets in your blog posts just by adding simple shortcodes. Please read the blog post at http://themergency.com/twitter-blackbrid-pie-wordpress-plugin-03/ for more info and see a demo of the plugin in action at http://themergency.com/twitter-blackbird-pie-wordpress-plugin-demo/.
 
 The plugins has the following features:
 
