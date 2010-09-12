@@ -4,7 +4,7 @@ Donate link: http://themergency.com/donate/
 Tags: twitter, blackbird pie
 Requires at least: 2.9.2
 Tested up to: 3.0.1
-Stable tag: 0.3.1
+Stable tag: 0.3.2
 
 Add awesome looking embedded HTML representations of actual tweets in your blog posts just by adding simple shortcodes.
 
@@ -78,8 +78,8 @@ The plugins has the following features:
 * Changed the custom fields to be hidden (they are prefixed with an underscore)
 * Fixed some bugs
 
-= 0.3.1 =
-* removed a debug print_r (DOH!!! - WTF!)
+= 0.3.1 - 0.3.2 =
+* removed some embarresing print_r and echo statements used during testing
 * PLEASE UPGRADE!
 
 == Frequently Asked Questions ==
