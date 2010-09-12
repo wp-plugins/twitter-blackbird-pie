@@ -3,7 +3,7 @@
 Plugin Name: Blackbird Pie
 Plugin URI: http://themergency.com
 Description: Add tweet visualizations to your site as can be found at http://media.twitter.com/blackbird-pie/
-Version: 0.3
+Version: 0.3.1
 Author: Brad Vincent
 Author URI: http://themergency.com
 License: GPL2
@@ -44,7 +44,7 @@ class BlackbirdPie {
 	function register_myplugin_button($buttons) {
 		echo 'testing';
 		array_push($buttons, "separator", $this->pluginname);
-		print_r($buttons);
+		//print_r($buttons);
 		return $buttons;
 	}
 	 
