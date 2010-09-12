@@ -1,6 +1,6 @@
 === Twitter Blackbird Pie ===
 Contributors: bradvin
-Donate link: http://themergency.com/twitter-blackbird-pie-wordpress-plugin/
+Donate link: http://themergency.com/donate/
 Tags: twitter, blackbird pie
 Requires at least: 2.9.2
 Tested up to: 3.0.1
