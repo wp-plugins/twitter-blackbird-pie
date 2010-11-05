@@ -3,7 +3,7 @@
 Plugin Name: Blackbird Pie
 Plugin URI: http://themergency.com
 Description: Add tweet visualizations to your site as can be found at http://media.twitter.com/blackbird-pie/
-Version: 0.3.2
+Version: 0.3.3
 Author: Brad Vincent
 Author URI: http://themergency.com
 License: GPL2
@@ -217,7 +217,7 @@ class BlackbirdPie {
 				$tweetHTML = "<!-- tweet id : $id -->
 			<style type='text/css'>#bbpBox_$id{background:#$profileBackgroundColor url($profileBackgroundImage) $profileBackgroundTileHTML !important;padding:20px;}#bbpBox_$id p.bbpTweet{background:#fff;padding:10px 12px 10px 12px !important;margin:0 !important;min-height:48px;color:#$profileTextColor !important;font-size:18px !important;line-height:22px;-moz-border-radius:5px;-webkit-border-radius:5px}#bbpBox_$id p.bbpTweet a {color:#$profileLinkColor !important}#bbpBox_$id p.bbpTweet span.metadata{display:block;width:100%;clear:both;margin-top:8px  !important;padding-top:12px !important;height:40px;border-top:1px solid #e6e6e6}#bbpBox_$id p.bbpTweet span.metadata span.author{line-height:19px}#bbpBox_$id p.bbpTweet span.metadata span.author img{float:left;margin:0 7px 0px 0px !important;width:38px;height:38px;padding:0 !important;border:none !important;}#bbpBox_$id p.bbpTweet a:hover{text-decoration:underline}#bbpBox_$id p.bbpTweet span.timestamp{font-size:12px;display:block}</style>
 			 
-			<div id='bbpBox_$id'><p class='bbpTweet'>$tweetText<span class='timestamp'><a title='tweeted on $friendlyDate' href='$tweetURL'>$timeAgo</a> via $source</span><span class='metadata'><span class='author'><a href='http://twitter.com/$screenName'><img src='$profilePic' /></a><strong><a href='http://twitter.com/$screenName'>$screenName</a></strong>$realNameHTML</span></span></p></div>
+			<div class='bbpBox' id='bbpBox_$id'><p class='bbpTweet'>$tweetText<span class='timestamp'><a title='tweeted on $friendlyDate' href='$tweetURL'>$timeAgo</a> via $source</span><span class='metadata'><span class='author'><a href='http://twitter.com/$screenName'><img src='$profilePic' /></a><strong><a href='http://twitter.com/$screenName'>$screenName</a></strong>$realNameHTML</span></span></p></div>
 			<!-- end of tweet -->";
 
 				return $tweetHTML;

@@ -56,6 +56,7 @@
  * @link        http://pear.php.net/pepr/pepr-proposal-show.php?id=198
  */
 
+ if (!class_exists('Services_JSON')) {
 /**
  * Marker constant for Services_JSON::decode(), used to flag stack state
  */
@@ -112,6 +113,7 @@ define('SERVICES_JSON_SUPPRESS_ERRORS', 32);
  * $value = $json->decode($input);
  * </code>
  */
+
 class Services_JSON
 {
    /**
@@ -800,6 +802,8 @@ if (class_exists('PEAR_Error')) {
 
         }
     }
+
+}
 
 }
     
