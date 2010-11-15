@@ -123,7 +123,14 @@ if ( !is_user_logged_in() || !current_user_can('edit_posts') )
           </tr>
 		  <tr>
 			<td colspan="2">e.g. 'http://twitter.com/jack/status/20'</td>
-		  </tr>        
+		  </tr>
+		  <tr>
+			<td colspan="2" align="center" style="background:#eee">
+				<a target="_blank" title="Donate to Blakbird Pie WordPress Plugin" href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=BQKQXLQ72EWJ2"><img src="https://www.paypal.com/en_US/i/btn/btn_donate_LG.gif" border="0" alt="Donate" style="border:none !important">
+				</a>
+				<br />This plugin's author runs off beer. Support this plugin by donating beer money :)
+			</td>
+		  </tr>
         </table>
 		</div>
 		<!-- end blackbirdpie panel 1-->

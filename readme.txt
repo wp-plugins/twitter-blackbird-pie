@@ -4,7 +4,7 @@ Donate link: http://themergency.com/donate/
 Tags: twitter, blackbird pie
 Requires at least: 2.9.2
 Tested up to: 3.0.1
-Stable tag: 0.3.3
+Stable tag: 0.3.4
 
 Add awesome looking embedded HTML representations of actual tweets in your blog posts just by adding simple shortcodes.
 
@@ -43,34 +43,17 @@ The plugins has the following features:
 
 == Changelog ==
 
-= 0.1 =
-* Initial Relase. First version.
+= 0.3.4 = 
+* added support for NewTwitter URL formats
+* renamed Autolink.php to autolink.php (lowercase) to overcome some issues
 
-= 0.1.5 =
-* Updated the CSS incl. adding a few "!important" rules to make sure the theme CSS does not override it.
-* Fixed bug for profile background image tile not working.
-* Fixed bug for the date or the tweet. It now takes into account the timezone.
+= 0.3.3 =
+* fixed a plugin conflict issue with the Services_JSON class
+* added class='bbpBox' to the generated div for a tweet, so you can modify some styling
+* PLEASE UPGRADE!
 
-= 0.2 =
-* Removed dependency on Jquery TimeAgo plugin and using a php function instead
-
-= 0.2.1 =
-* Fixed bug introduced in ver 0.2 where the time was not updating (e.g. "1 hour ago" was being saved into the custom field
-* Fixed JSON encoding bug
-
-= 0.2.2 =
-* Fixed bug introduced in ver 0.2.1 where Twitter API was being called on every request
-
-= 0.2.3 =
-* Fixed bug with non english characters showing as numbers in the tweet text
-
-= 0.2.5 =
-* Fixed a bug where the tweet was blank when it included quotes (")
-* Removed some debugging echos (DOH!!!)
-* Forcing new version
-
-= 0.2.6 =
-* Fixed a bug with non english usernames showing as numbers
+= 0.3.1 - 0.3.2 =
+* removed some embarresing print_r and echo statements used during testing
 
 = 0.3 =
 * Added a button into the tinyMCE editor to easily embed a tweet
@@ -78,13 +61,34 @@ The plugins has the following features:
 * Changed the custom fields to be hidden (they are prefixed with an underscore)
 * Fixed some bugs
 
-= 0.3.1 - 0.3.2 =
-* removed some embarresing print_r and echo statements used during testing
+= 0.2.6 =
+* Fixed a bug with non english usernames showing as numbers
 
-= 0.3.3 =
-* fixed a plugin conflict issue with the Services_JSON class
-* added class='bbpBox' to the generated div for a tweet, so you can modify some styling
-* PLEASE UPGRADE!
+= 0.2.5 =
+* Fixed a bug where the tweet was blank when it included quotes (")
+* Removed some debugging echos (DOH!!!)
+* Forcing new version
+
+= 0.2.3 =
+* Fixed bug with non english characters showing as numbers in the tweet text
+
+= 0.2.2 =
+* Fixed bug introduced in ver 0.2.1 where Twitter API was being called on every request
+
+= 0.2.1 =
+* Fixed bug introduced in ver 0.2 where the time was not updating (e.g. "1 hour ago" was being saved into the custom field
+* Fixed JSON encoding bug
+
+= 0.2 =
+* Removed dependency on Jquery TimeAgo plugin and using a php function instead
+
+= 0.1.5 =
+* Updated the CSS incl. adding a few "!important" rules to make sure the theme CSS does not override it.
+* Fixed bug for profile background image tile not working.
+* Fixed bug for the date or the tweet. It now takes into account the timezone.
+
+= 0.1 =
+* Initial Relase. First version.
 
 == Frequently Asked Questions ==
 

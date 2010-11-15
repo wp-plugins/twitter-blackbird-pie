@@ -3,7 +3,7 @@
 Plugin Name: Blackbird Pie
 Plugin URI: http://themergency.com
 Description: Add tweet visualizations to your site as can be found at http://media.twitter.com/blackbird-pie/
-Version: 0.3.3
+Version: 0.3.4
 Author: Brad Vincent
 Author URI: http://themergency.com
 License: GPL2
@@ -12,6 +12,7 @@ License: GPL2
 class BlackbirdPie {
 	
 	var $pluginname = "blackbirdpie";
+	var $regex = "/^http:\/\/twitter\.com\/(?:#!\/)?(\w+)\/status(es)?\/(\d+)$/";
 	
 	//constructor
 	function BlackbirdPie() {
@@ -21,7 +22,7 @@ class BlackbirdPie {
 
 		if (!is_admin()) {
 			add_shortcode($this->pluginname, array(&$this, "shortcode"));
-			wp_embed_register_handler( $this->pluginname, "/^http:\/\/twitter\.com\/(\w+)\/status(es)*\/(\d+)$/", array(&$this, "blackbirdpie_embed_handler") );
+			wp_embed_register_handler( $this->pluginname, $this->regex, array(&$this, "blackbirdpie_embed_handler") );
 		} else {
 			$this->add_editor_button();
 		}
@@ -42,9 +43,7 @@ class BlackbirdPie {
 	}
 	
 	function register_myplugin_button($buttons) {
-		//echo 'testing';
 		array_push($buttons, "separator", $this->pluginname);
-		//print_r($buttons);
 		return $buttons;
 	}
 	 
@@ -110,8 +109,6 @@ class BlackbirdPie {
 		return $json->encode($value);
 	}
 	
-	
-	
 	function shortcode($atts) {
 		include_once('json.php');
 	
@@ -123,14 +120,14 @@ class BlackbirdPie {
 		
 		//extract the status ID from $id (incase someone incorrectly used a shortcode lie [blackbirdpie id="http://twitter..."])
 		if ($id) {
-			if (preg_match('/^http:\/\/twitter\.com\/(\w+)\/status(es)*\/(\d+)$/', $id, $matches)) {
+			if (preg_match($this->regex, $id, $matches)) {
 				$id = $matches[3];
 			}
 		}
 		
 		//extract the status ID from $url
 		if ($url) {
-			if (preg_match('/^http:\/\/twitter\.com\/(\w+)\/status(es)*\/(\d+)$/', $url, $matches)) {
+			if (preg_match($this->regex, $url, $matches)) {
 				$id = $matches[3];
 			}
 		}
@@ -164,7 +161,6 @@ class BlackbirdPie {
 				$data->contents->text = addslashes($oUnicodeReplace->UTF8entities($data->contents->text));
 				$data->contents->user->screen_name = addslashes($oUnicodeReplace->UTF8entities($data->contents->user->screen_name));
 				$data->contents->user->name = addslashes($oUnicodeReplace->UTF8entities($data->contents->user->name));
-				//echo 'FETCH FROM TWITTER';
 			}
 			
 			$http_code = $data->status->http_code;
@@ -176,11 +172,10 @@ class BlackbirdPie {
 					update_post_meta($post_id, '_'.$this->pluginname.'_'.$id, $this->encode($data));			
 				}
 			
-				require_once('Autolink.php');
+				require_once('autolinker.php');
 				$autolinker = new Twitter_Autolink();
 				$screenName = stripslashes($data->contents->user->screen_name);
 				$realName = stripslashes($data->contents->user->name);
-				//echo $data->contents->text;
 				$tweetText = stripslashes($autolinker->autolink($data->contents->text));
 				$source = $data->contents->source;
 				$profilePic = $data->contents->user->profile_image_url;
