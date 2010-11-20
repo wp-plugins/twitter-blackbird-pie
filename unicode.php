@@ -5,7 +5,8 @@ found here : http://www.php.net/manual/en/function.htmlentities.php#92105
 */
 
 class unicode_replace_entities {
-        public function UTF8entities($content="") { 
+
+        public function UTF8entities($content) { 
             $contents = $this->unicode_string_to_array($content);
             $swap = "";
             $iCount = count($contents);

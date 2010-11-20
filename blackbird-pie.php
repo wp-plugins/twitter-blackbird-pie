@@ -3,7 +3,7 @@
 Plugin Name: Blackbird Pie
 Plugin URI: http://themergency.com
 Description: Add tweet visualizations to your site as can be found at http://media.twitter.com/blackbird-pie/
-Version: 0.3.4
+Version: 0.3.5
 Author: Brad Vincent
 Author URI: http://themergency.com
 License: GPL2
@@ -11,18 +11,16 @@ License: GPL2
 
 class BlackbirdPie {
 	
-	var $pluginname = "blackbirdpie";
-	var $regex = "/^http:\/\/twitter\.com\/(?:#!\/)?(\w+)\/status(es)?\/(\d+)$/";
-	
 	//constructor
 	function BlackbirdPie() {
-	
-		define($this->pluginname.'_ABSPATH', WP_PLUGIN_DIR.'/'.plugin_basename( dirname(__FILE__) ).'/' );
-		define($this->pluginname.'_URLPATH', WP_PLUGIN_URL.'/'.plugin_basename( dirname(__FILE__) ).'/' );
+		define( "BBP_NAME",  "blackbirdpie" );
+		define( BBP_NAME."_REGEX", "/^http:\/\/twitter\.com\/(?:#!\/)?(\w+)\/status(es)?\/(\d+)$/" );
+		define( BBP_NAME.'_ABSPATH', WP_PLUGIN_DIR.'/'.plugin_basename( dirname(__FILE__) ).'/' );
+		define( BBP_NAME.'_URLPATH', WP_PLUGIN_URL.'/'.plugin_basename( dirname(__FILE__) ).'/' );
 
 		if (!is_admin()) {
-			add_shortcode($this->pluginname, array(&$this, "shortcode"));
-			wp_embed_register_handler( $this->pluginname, $this->regex, array(&$this, "blackbirdpie_embed_handler") );
+			add_shortcode(BBP_NAME, array(&$this, "shortcode"));
+			wp_embed_register_handler( BBP_NAME, blackbirdpie_REGEX, array(&$this, "blackbirdpie_embed_handler") );
 		} else {
 			$this->add_editor_button();
 		}
@@ -43,14 +41,14 @@ class BlackbirdPie {
 	}
 	
 	function register_myplugin_button($buttons) {
-		array_push($buttons, "separator", $this->pluginname);
+		array_push($buttons, "separator", BBP_NAME);
 		return $buttons;
 	}
 	 
 	// Load the TinyMCE plugin : editor_plugin.js (wp2.5)
 	function add_myplugin_tinymce_plugin($plugin_array) {
 		
-		$plugin_array[$this->pluginname] = blackbirdpie_URLPATH.'tinymce/editor_plugin_blackbirdpie.js';
+		$plugin_array[BBP_NAME] = blackbirdpie_URLPATH.'tinymce/editor_plugin_blackbirdpie.js';
 		return $plugin_array;
 	}	
 	
@@ -120,14 +118,14 @@ class BlackbirdPie {
 		
 		//extract the status ID from $id (incase someone incorrectly used a shortcode lie [blackbirdpie id="http://twitter..."])
 		if ($id) {
-			if (preg_match($this->regex, $id, $matches)) {
+			if (preg_match(blackbirdpie_REGEX, $id, $matches)) {
 				$id = $matches[3];
 			}
 		}
 		
 		//extract the status ID from $url
 		if ($url) {
-			if (preg_match($this->regex, $url, $matches)) {
+			if (preg_match(blackbirdpie_REGEX, $url, $matches)) {
 				$id = $matches[3];
 			}
 		}
@@ -146,7 +144,7 @@ class BlackbirdPie {
 		
 			if ($post_id > 0) {
 				//try and see if we have the tweet JSON data already saved
-				$jsonData = get_post_meta($post_id, '_'.$this->pluginname.'_'.$id, true);
+				$jsonData = get_post_meta($post_id, '_'.BBP_NAME.'_'.$id, true);
 				$data = $this->decode($jsonData);
 			}
 			
@@ -169,7 +167,7 @@ class BlackbirdPie {
 			
 				// save the tweet JSON data into a custom field
 				if ($saveData && $post_id > 0) {
-					update_post_meta($post_id, '_'.$this->pluginname.'_'.$id, $this->encode($data));			
+					update_post_meta($post_id, '_'.BBP_NAME.'_'.$id, $this->encode($data));			
 				}
 			
 				require_once('autolinker.php');
