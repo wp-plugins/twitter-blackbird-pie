@@ -4,7 +4,7 @@ Donate link: http://themergency.com/donate/
 Tags: twitter, blackbird pie
 Requires at least: 2.9.2
 Tested up to: 3.0.1
-Stable tag: 0.3.5
+Stable tag: 0.3.6
 
 Add awesome looking embedded HTML representations of actual tweets in your blog posts just by adding simple shortcodes.
 
@@ -42,6 +42,9 @@ The plugins has the following features:
 3. Search someone's twitter timeline to pick which tweet to embed
 
 == Changelog ==
+
+= 0.3.6 =
+* Added support to allow for HTTPS tweet URLs
 
 = 0.3.5 = 
 * made a change to overcome a parse error some users had. The error details were "Parse error: syntax error, unexpected ‘”‘ in blackbird-pie.php on line 15" 

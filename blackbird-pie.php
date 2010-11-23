@@ -3,7 +3,7 @@
 Plugin Name: Blackbird Pie
 Plugin URI: http://themergency.com
 Description: Add tweet visualizations to your site as can be found at http://media.twitter.com/blackbird-pie/
-Version: 0.3.5
+Version: 0.3.6
 Author: Brad Vincent
 Author URI: http://themergency.com
 License: GPL2
@@ -14,7 +14,7 @@ class BlackbirdPie {
 	//constructor
 	function BlackbirdPie() {
 		define( "BBP_NAME",  "blackbirdpie" );
-		define( BBP_NAME."_REGEX", "/^http:\/\/twitter\.com\/(?:#!\/)?(\w+)\/status(es)?\/(\d+)$/" );
+		define( BBP_NAME."_REGEX", "/^(http|https):\/\/twitter\.com\/(?:#!\/)?(\w+)\/status(es)?\/(\d+)$/" );
 		define( BBP_NAME.'_ABSPATH', WP_PLUGIN_DIR.'/'.plugin_basename( dirname(__FILE__) ).'/' );
 		define( BBP_NAME.'_URLPATH', WP_PLUGIN_URL.'/'.plugin_basename( dirname(__FILE__) ).'/' );
 
@@ -119,14 +119,14 @@ class BlackbirdPie {
 		//extract the status ID from $id (incase someone incorrectly used a shortcode lie [blackbirdpie id="http://twitter..."])
 		if ($id) {
 			if (preg_match(blackbirdpie_REGEX, $id, $matches)) {
-				$id = $matches[3];
+				$id = $matches[4];
 			}
 		}
 		
 		//extract the status ID from $url
 		if ($url) {
 			if (preg_match(blackbirdpie_REGEX, $url, $matches)) {
-				$id = $matches[3];
+				$id = $matches[4];
 			}
 		}
 		
