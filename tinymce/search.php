@@ -59,7 +59,8 @@ if ( !is_user_logged_in() || !current_user_can('edit_posts') )
 						cnt++;
 						var num = ((<?php echo $page; ?>-1)*num_per_page) + cnt;
 						//place the tweet within a paragraph tag within the main div. 
-						$results.append("<tr"+cls+"><td><a href='#' id="+item.id+"><b>"+num+".</b>"+item.text+"<span>("+dateFormat(item.created_at, 'd mmm yyyy HH:MM')+")</span></a></td></tr>");
+						var result = "<tr"+cls+"><td><a href='#' id="+item.id_str+"><b>"+num+".</b>"+item.text+"<span>("+dateFormat(item.created_at, 'd mmm yyyy HH:MM')+")</span></a></td></tr>";
+						$results.append(result);
 					}
 				});
 				

@@ -3,8 +3,8 @@ Contributors: bradvin
 Donate link: http://themergency.com/donate/
 Tags: twitter, blackbird pie
 Requires at least: 2.9.2
-Tested up to: 3.0.1
-Stable tag: 0.3.6
+Tested up to: 3.1 RC2
+Stable tag: 0.3.7
 
 Add awesome looking embedded HTML representations of actual tweets in your blog posts just by adding simple shortcodes.
 
@@ -42,6 +42,9 @@ The plugins has the following features:
 3. Search someone's twitter timeline to pick which tweet to embed
 
 == Changelog ==
+
+= 0.3.7 =
+* Fixed bug in tinyMCE button search where the wrong tweet ID was being inserted
 
 = 0.3.6 =
 * Added support to allow for HTTPS tweet URLs
