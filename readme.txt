@@ -1,10 +1,10 @@
 === Twitter Blackbird Pie ===
 Contributors: bradvin
 Donate link: http://themergency.com/donate/
-Tags: twitter, blackbird pie
+Tags: twitter, blackbird pie, blackbirdpie
 Requires at least: 2.9.2
-Tested up to: 3.1 RC2
-Stable tag: 0.3.7
+Tested up to: 3.1
+Stable tag: 0.4
 
 Add awesome looking embedded HTML representations of actual tweets in your blog posts just by adding simple shortcodes.
 
@@ -17,6 +17,7 @@ The plugins has the following features:
 *   TinyMCE editor button to easily search and embed a tweet
 *   Support for the built-in embeds API (oEmbed), so a tweet URL on it's own line will be converted to a "pie"
 *   Supports non-english tweets & names!
+*	Now tweets looks pretty in RSS readers!
 *   Exact same look and feel as the respective Twitter profile.
 *   Allows for multiple "pies" in a single post.
 *   Stores the generated HTML in a custom field (if possible), so the Twitter API is only called the first time.
@@ -40,8 +41,18 @@ The plugins has the following features:
 1. Example output. See it in action at http://themergency.com/twitter-blackbird-pie-wordpress-plugin/
 2. Use the tinyMCE editor custom blackbirb button to embed your tweet
 3. Search someone's twitter timeline to pick which tweet to embed
+4. Tweets look pretty from RSS readers now :)
 
 == Changelog ==
+
+= 0.4 =
+* Fixed tweets in RSS feeds!!! They now look great!
+* create a custom filter that you can now use to override the HTML of the embedded tweet 'bbp_create_tweet'
+* only the data that is used to display the tweet is saved, not the whole json response from the twitter API
+* most styles moved to be inline. Hopefully this will solve the RSS fee issues
+* tweet and user links now point to the new hashbang (#!) urls
+* extensive code cleanup with some help from #plugindevbook
+* refactored the tweet output HTML completely!
 
 = 0.3.7 =
 * Fixed bug in tinyMCE button search where the wrong tweet ID was being inserted
