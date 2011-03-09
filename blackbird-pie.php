@@ -3,7 +3,7 @@
 Plugin Name: Blackbird Pie
 Plugin URI: http://themergency.com/plugins/twitter-blackbird-pie/
 Description: Add tweet visualizations to your site as can be found at http://media.twitter.com/blackbird-pie/. 
-Version: 0.4
+Version: 0.4.1
 Author: Brad Vincent
 Author URI: http://themergency.com
 License: GPL2
@@ -148,14 +148,14 @@ class BlackbirdPie {
                 //we need to get the tweet json data from twitter API
                 $data = $this->get_tweet_details($id);
 
-                if ($data->status->http_code == "200") {
+                if ( !empty($data->text) ) {
                     require_once('unicode.php');
                     $oUnicodeReplace = new unicode_replace_entities();
 
                     //fix for non english tweets
-                    $data->contents->text = addslashes($oUnicodeReplace->UTF8entities($data->contents->text));
-                    $data->contents->user->screen_name = addslashes($oUnicodeReplace->UTF8entities($data->contents->user->screen_name));
-                    $data->contents->user->name = addslashes($oUnicodeReplace->UTF8entities($data->contents->user->name));
+                    $data->text = addslashes($oUnicodeReplace->UTF8entities($data->text));
+                    $data->user->screen_name = addslashes($oUnicodeReplace->UTF8entities($data->user->screen_name));
+                    $data->user->name = addslashes($oUnicodeReplace->UTF8entities($data->user->name));
 
                     require_once('autolinker.php');
                     $autolinker = new Twitter_Autolink();
@@ -169,24 +169,24 @@ class BlackbirdPie {
 
                     $dateTimeFormat = $dateFormat.' '.$timeFormat;
 
-                    $timeStamp = strtotime($data->contents->created_at);
+                    $timeStamp = strtotime($data->created_at);
 
                     $args = array(
                         'id' => $id,
-                        'screen_name' => stripslashes($data->contents->user->screen_name),
-                        'real_name' => stripslashes($data->contents->user->name),
-                        'tweet_text' => stripslashes($autolinker->autolink($data->contents->text)),
-                        'source' => $data->contents->source,
+                        'screen_name' => stripslashes($data->user->screen_name),
+                        'real_name' => stripslashes($data->user->name),
+                        'tweet_text' => stripslashes($autolinker->autolink($data->text)),
+                        'source' => $data->source,
 
-                        'profile_pic' => $data->contents->user->profile_image_url,
-                        'profile_bg_color' => $data->contents->user->profile_background_color,
-                        'profile_bg_tile' => $data->contents->user->profile_background_tile,
-                        'profile_bg_image' => $data->contents->user->profile_background_image_url,
-                        'profile_text_color' => $data->contents->user->profile_text_color,
-                        'profile_link_color' => $data->contents->user->profile_link_color,
+                        'profile_pic' => $data->user->profile_image_url,
+                        'profile_bg_color' => $data->user->profile_background_color,
+                        'profile_bg_tile' => $data->user->profile_background_tile,
+                        'profile_bg_image' => $data->user->profile_background_image_url,
+                        'profile_text_color' => $data->user->profile_text_color,
+                        'profile_link_color' => $data->user->profile_link_color,
 
                         'time_stamp' => $timeStamp,
-                        'utc_offset' => $data->contents->user->utc_offset,
+                        'utc_offset' => $data->user->utc_offset,
 
                         'friendly_date' => date($dateTimeFormat, $timeStamp),
                         'time_ago' => $this->ago($timeStamp, $dateTimeFormat)
@@ -239,9 +239,7 @@ class BlackbirdPie {
     function get_tweet_details($id) {
         include_once('json.php');
 
-        $encoded = urlencode("http://api.twitter.com/1/statuses/show.json?id={$id}");
-
-        $request_url = "http://media.twitter.com/tweetproxy/?url={$encoded}";
+        $request_url = "http://api.twitter.com/1/statuses/show.json?id={$id}";
 
         if(!class_exists('WP_Http'))
             include_once(ABSPATH . WPINC . '/class-http.php');

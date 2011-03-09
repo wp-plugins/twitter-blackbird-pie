@@ -4,11 +4,14 @@ Donate link: http://themergency.com/donate/
 Tags: twitter, blackbird pie, blackbirdpie
 Requires at least: 2.9.2
 Tested up to: 3.1
-Stable tag: 0.4
+Stable tag: 0.4.1
 
 Add awesome looking embedded HTML representations of actual tweets in your blog posts just by adding simple shortcodes.
 
 == Description ==
+
+** PLEASE UPGRADE TO VERSION 0.4.1 **
+Twitters tweetproxy (http://media.twitter.com/tweetproxy/) was nuked so I had to change the API calls. Previous versions of the plugin WILL NOT WORK and return the error "There was a problem connecting to Twitter". Please upgrade!!!! 
 
 Add awesome looking embedded HTML representations of actual tweets in your blog posts just by adding simple shortcodes. Please read the blog post at http://themergency.com/twitter-blackbrid-pie-wordpress-plugin-03/ for more info and see a demo of the plugin in action at http://themergency.com/twitter-blackbird-pie-wordpress-plugin-demo/.
 
@@ -44,6 +47,10 @@ The plugins has the following features:
 4. Tweets look pretty from RSS readers now :)
 
 == Changelog ==
+
+= 0.4.1 =
+* Twitters tweetproxy (http://media.twitter.com/tweetproxy/) was nuked so had to change the API calls
+* PLEASE UPGRADE!
 
 = 0.4 =
 * Fixed tweets in RSS feeds!!! They now look great!
