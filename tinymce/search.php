@@ -23,7 +23,7 @@ if ( !is_user_logged_in() || !current_user_can('edit_posts') )
 	<script language="javascript" type="text/javascript" src="<?php echo get_option('siteurl') ?>/wp-includes/js/tinymce/utils/mctabs.js"></script>
 	<script language="javascript" type="text/javascript" src="<?php echo get_option('siteurl') ?>/wp-includes/js/tinymce/utils/form_utils.js"></script>
 	<script language="javascript" type="text/javascript" src="<?php echo get_option('siteurl') ?>/wp-includes/js/jquery/jquery.js"></script>
-	<script language="javascript" type="text/javascript" src="<?php echo blackbirdpie_URLPATH; ?>tinymce/date.format.js"></script>	
+	<script language="javascript" type="text/javascript" src="<?php echo BBP_URL; ?>tinymce/date.format.js"></script>	
 	<script language="javascript" type="text/javascript">
 	
 	jQuery(document).ready(function() {
