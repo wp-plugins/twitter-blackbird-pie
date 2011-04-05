@@ -4,19 +4,21 @@ Donate link: http://themergency.com/donate/
 Tags: twitter, blackbird pie, blackbirdpie
 Requires at least: 2.9.2
 Tested up to: 3.1
-Stable tag: 0.4.1.1
+Stable tag: 0.5
 
 Add awesome looking embedded HTML representations of actual tweets in your blog posts just by adding simple shortcodes.
 
 == Description ==
 
-> **PLEASE UPGRADE TO VERSION 0.4.1.1**
-> Twitters tweetproxy (http://media.twitter.com/tweetproxy/) was nuked so I had to change the API calls. Previous versions of the plugin WILL NOT WORK and return the error "There was a problem connecting to Twitter". Please upgrade!!!! 
+** Now with Twitter Web Intents http://dev.twitter.com/pages/intents **
 
 Add awesome looking embedded HTML representations of actual tweets in your blog posts just by adding simple shortcodes. Please read the blog post at http://themergency.com/twitter-blackbrid-pie-wordpress-plugin-03/ for more info and see a demo of the plugin in action at http://themergency.com/twitter-blackbird-pie-wordpress-plugin-demo/.
 
+Big thanks must go out to Justin Shreve (http://justin.gs/) from Automattic, who let me reuse his code from the WordPress.com version of the Blackbird Pie plugin.
+
 The plugins has the following features:
 
+*   Supports Twitter Web Intents http://dev.twitter.com/pages/intents
 *   TinyMCE editor button to easily search and embed a tweet
 *   Support for the built-in embeds API (oEmbed), so a tweet URL on it's own line will be converted to a "pie"
 *   Supports non-english tweets & names!
@@ -41,12 +43,18 @@ The plugins has the following features:
 
 == Screenshots ==
 
-1. Example output. See it in action at http://themergency.com/twitter-blackbird-pie-wordpress-plugin/
-2. Use the tinyMCE editor custom blackbirb button to embed your tweet
+1. Example pies
+2. Easily embed your tweet from the HTML editor
 3. Search someone's twitter timeline to pick which tweet to embed
 4. Tweets look pretty from RSS readers now :)
 
 == Changelog ==
+
+= 0.5 =
+* Included support for Twitter Web Intents
+* bug fix : checks for mb_strlen and uses alternative if mb_str is not installed in php
+* bug fix : JS error due to w3 Total cache minification of HTML (http://wordpress.org/support/topic/plugin-twitter-blackbird-pie-not-working)
+* bug fix : Time stamp was 'frozen'
 
 = 0.4.1.1 =
 * Fixed JS bug in the search popup - no results were ever shown

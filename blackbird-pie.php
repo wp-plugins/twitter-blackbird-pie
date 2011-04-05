@@ -3,14 +3,19 @@
 Plugin Name: Blackbird Pie
 Plugin URI: http://themergency.com/plugins/twitter-blackbird-pie/
 Description: Add tweet visualizations to your site as can be found at http://media.twitter.com/blackbird-pie/. 
-Version: 0.4.1.1
+Version: 0.5
 Author: Brad Vincent
 Author URI: http://themergency.com
 License: GPL2
 */
 
 class BlackbirdPie {
-	
+
+    /**
+     * Stores the Twitter handles for the users on the current blog.
+     */
+    private $handles = array();
+
     //constructor
     function BlackbirdPie() {
         define( 'BBP_NAME',  'blackbirdpie' );
@@ -18,15 +23,92 @@ class BlackbirdPie {
         define( 'BBP_DIR', plugin_dir_path( __FILE__ ) );
         define( 'BBP_URL', plugins_url( '/', __FILE__ ) );
 
+        if(!class_exists('WP_Http'))
+            include_once(ABSPATH . WPINC . '/class-http.php');
+
+        include_once(BBP_DIR . 'includes/json.php');
+
         if (!is_admin()) {
             //register shortcode
             add_shortcode(BBP_NAME, array(&$this, 'shortcode'));
             //register auto embed
-            wp_embed_register_handler( BBP_NAME, BBP_REGEX, array(&$this, 'blackbirdpie_embed_handler') );
+            wp_embed_register_handler( BBP_NAME, BBP_REGEX, array(&$this, 'blackbirdpie_embed_handler'), 10 );
+
+            add_action( 'wp_head', array( &$this, 'embed_head'), -1 );
         } else {
             //setup WYSIWYG editor
             $this->add_editor_button();
         }
+    }
+
+    /**
+     * Insert the neccessary Twitter JavaScript and CSS into HTML <head> if posts with twitter links exist.
+     * If tweets are present then queue the blackbird pie code.
+     *
+     * original code from twitter-blackbird-pie WordPress.com plugin
+     */
+    function embed_head() {
+        global $posts;
+
+        if ( is_feed() || !is_array( $posts ) )
+            return;
+
+        $load = false;
+        foreach ( $posts as $post ) {
+
+            //first check if the post contains a blackbirdpie shortcode
+            if ( strpos( $post->post_content, '[blackbirdpie' ) >= 0 ) {
+                $load = true;
+                break;
+            }
+            else
+            //then check if the post contains a twitter link
+            if (  preg_match( '/(\n|\A)http(s|):\/\/twitter\.com(\/\#\!\/|\/)([a-zA-Z0-9_]{1,20})\/status(es)*\/(\d+)(\/|)/i', $post->post_content ) ) {
+                $load = true;
+                break;
+            }
+        }
+
+        if ( $load ) {
+            add_action( 'wp_enqueue_scripts', array( &$this, 'load_scripts'), 20 );
+            add_action( 'wp_print_styles', array( &$this, 'load_styles'), 20 );
+
+            if ( ! $handles_cache = wp_cache_get( 'twitter-handles' ) ) {
+
+                foreach ( get_users() as $user ) {
+                    $user_id = intval( $user->ID );
+                    $handle = get_user_meta( $user_id, 'twitter', true );
+                    if ( !empty( $handle ) )
+                        $this->handles[$user_id] = str_replace( 'http://twitter.com/', '', $handle );
+                }
+
+                wp_cache_set( 'twitter-handles', $this->handles );
+            } else {
+                $this->handles = $handles_cache;
+            }
+        }
+
+        return;
+    }
+
+    /**
+     * Loads the javascript needed by Twitter Blackbird Pie for loading the reply, retweet and favorite scripts
+     *
+     * original code from twitter-blackbird-pie WordPress.com plugin
+     */
+    function load_scripts() {
+        wp_register_script( BBP_NAME . '-js', BBP_URL . 'js/blackbirdpie.js',  array(), '20110404' );
+        wp_enqueue_script( BBP_NAME . '-js' );
+    }
+
+    /**
+     * Loads the CSS needed by Twitter Blackbird Pie for the CSS sprites
+     *
+     * original code from twitter-blackbird-pie WordPress.com plugin
+     */
+    function load_styles() {
+        wp_register_style( BBP_NAME . '-css', BBP_URL . 'css/blackbirdpie.css',  array(), '20110404' );
+        wp_enqueue_style( BBP_NAME . '-css' );
     }
 	
     function add_editor_button() {
@@ -54,48 +136,31 @@ class BlackbirdPie {
     }
 	
     /*
-    modified from http://www.php.net/manual/en/function.time.php#96097
-    */
-    function ago($datefrom, $format) {
-        $dateto = time();
-        
-        // Calculate the difference in seconds betweeen
-        // the two timestamps
+     * Calculates a textual representation of how long ago a date was.
+     * Supports "less than a minute ago", "1 minute ago or x minutes ago", and "about 1 hour ago" or "about x hours ago".
+     * If the date is older then this then we just display the date format according to the WordPress blog
+     *
+     * Based on ago() from Blackbird Pie v 0.3.2 and http://www.php.net/manual/en/function.time.php#96097
+     *
+     * code from WordPress.com blackbird pie plugin
+     *
+     * @param string $date The past date we are calculting the text string for
+     * @return string The textual representation of the date
+     */
+    function how_long_ago( $date ) {
+        $current = time();
+        $difference = $current - $date;
 
-        $difference = $dateto - $datefrom;
+        if ( strtotime( '-1 min', $current ) < $date)
+            $output = 'less than a minute ago';
+        elseif ( strtotime( '-1 hour', $current ) < $date )
+            $output = ( floor($difference / 60 ) == 1 ) ? '1 minute ago' : floor( $difference / 60 ) . ' minutes ago';
+        elseif ( strtotime( '-1 day', $current ) < $date )
+            $output = ( floor( $difference / 60 / 60 ) == 1 ) ? 'about 1 hour ago' : 'about ' . floor( $difference / 60 / 60 ) . ' hours ago';
+        else
+            $output = date( get_option('date_format') . ' ' . get_option( 'time_format' ), ( $date + ( get_option('gmt_offset') * 3600 ) ) );
 
-        // Based on the interval, determine the
-        // number of units between the two dates
-        // From this point on, you would be hard
-        // pushed telling the difference between
-        // this function and DateDiff. If the $datediff
-        // returned is 1, be sure to return the singular
-        // of the unit, e.g. 'day' rather 'days'
-    
-        switch(true)
-        {
-            // If difference is less than 60 seconds,
-            // seconds is a good interval of choice
-            case(strtotime('-1 min', $dateto) < $datefrom):
-                $datediff = $difference;
-                $res = 'less than a minute ago';
-                break;
-            // If difference is between 60 seconds and
-            // 60 minutes, minutes is a good interval
-            case(strtotime('-1 hour', $dateto) < $datefrom):
-                $datediff = floor($difference / 60);
-                $res = ($datediff==1) ? $datediff.' minute ago' : $datediff.' minutes ago';
-                break;
-            // If difference is between 1 hour and 24 hours
-            // hours is a good interval
-            case(strtotime('-1 day', $dateto) < $datefrom):
-                $datediff = floor($difference / 60 / 60);
-                $res = ($datediff==1) ? 'about '.$datediff.' hour ago' : 'about '.$datediff.' hours ago';
-                break;				
-            default:
-				$res = date($format, $datefrom);
-        }
-        return $res;
+        return $output;
     }
 	
     function decode($value) {
@@ -103,11 +168,6 @@ class BlackbirdPie {
         return $json->decode($value);
     }
 
-    function encode($value) {
-        $json = new Services_JSON();
-        return $json->encode($value);
-    }
-	
     function shortcode($atts) {
 
         // Extract the attributes
@@ -116,7 +176,7 @@ class BlackbirdPie {
             "url" => false
         ), $atts));
 
-        //extract the status ID from $id (incase someone incorrectly used a shortcode lie [blackbirdpie id="http://twitter..."])
+        //extract the status ID from $id (incase someone incorrectly used a shortcode like [blackbirdpie id="http://twitter..."])
         if ($id) {
             if (preg_match(BBP_REGEX, $id, $matches)) {
                 $id = $matches[4];
@@ -149,25 +209,11 @@ class BlackbirdPie {
                 $data = $this->get_tweet_details($id);
 
                 if ( !empty($data->text) ) {
-                    require_once('unicode.php');
-                    $oUnicodeReplace = new unicode_replace_entities();
 
                     //fix for non english tweets
-                    $data->text = addslashes($oUnicodeReplace->UTF8entities($data->text));
-                    $data->user->screen_name = addslashes($oUnicodeReplace->UTF8entities($data->user->screen_name));
-                    $data->user->name = addslashes($oUnicodeReplace->UTF8entities($data->user->name));
-
-                    require_once('autolinker.php');
-                    $autolinker = new Twitter_Autolink();
-
-                    //get site date and time formats
-                    $dateFormat = get_option('date_format');
-                    if (strlen($dateFormat)==0) $dateFormat = __('F j, Y');
-
-                    $timeFormat = get_option('time_format');
-                    if (strlen($timeFormat)==0) $timeFormat = __('g:i a');
-
-                    $dateTimeFormat = $dateFormat.' '.$timeFormat;
+                    $data->text = addslashes($this->UTF8entities($data->text));
+                    $data->user->screen_name = addslashes($this->UTF8entities($data->user->screen_name));
+                    $data->user->name = addslashes($this->UTF8entities($data->user->name));
 
                     $timeStamp = strtotime($data->created_at);
 
@@ -175,7 +221,7 @@ class BlackbirdPie {
                         'id' => $id,
                         'screen_name' => stripslashes($data->user->screen_name),
                         'real_name' => stripslashes($data->user->name),
-                        'tweet_text' => stripslashes($autolinker->autolink($data->text)),
+                        'tweet_text' => stripslashes($this->autolink($data->text)),
                         'source' => $data->source,
 
                         'profile_pic' => $data->user->profile_image_url,
@@ -186,10 +232,7 @@ class BlackbirdPie {
                         'profile_link_color' => $data->user->profile_link_color,
 
                         'time_stamp' => $timeStamp,
-                        'utc_offset' => $data->user->utc_offset,
-
-                        'friendly_date' => date($dateTimeFormat, $timeStamp),
-                        'time_ago' => $this->ago($timeStamp, $dateTimeFormat)
+                        'utc_offset' => $data->user->utc_offset
                     );
 
                     // save the tweet JSON data into a custom field
@@ -213,38 +256,202 @@ class BlackbirdPie {
 
         return 'There was a problem with the blakbirdpie shortcode';
     }
+ 
+    function create_tweet_html( $tweet_details, $options = array()) {
+        global $post;
+        
+        /* PROFILE DATA */
+        $name = $tweet_details['screen_name'];                      //the twitter username
+        $real_name = $tweet_details['real_name'];                   //the user's real name
+        $profile_pic = esc_url($tweet_details['profile_pic']);      //url to the profile image
+        if ( !$tweet_details['profile_bg_tile'] ) 
+            $profile_bg_tile_HTML = " background-repeat:no-repeat"; //profile background tile
+        $profile_link_color = $tweet_details['profile_link_color']; //link color
+        $profile_text_color = $tweet_details['profile_text_color']; //text color
+        $profile_bg_color = $tweet_details['profile_bg_color'];     //background color
+        $profile_bg_image = esc_url($tweet_details['profile_bg_image']);     //background image
+        $profile_url = esc_url("http://twitter.com/intent/user?screen_name={$name}"); //the URL to the twitter profile
 
-    function create_tweet_html($args) {
+        /* GENERAL INFO */
+        $id = $tweet_details['id'];                                     //id of the actual tweet
+        $url = esc_url( "http://twitter.com/#!/{$name}/status/{$id}" ); //the URL to the tweet on twitter.com
 
-        if ( !$args['profile_bg_tile'] )
-            $profile_bg_tile_HTML = " background-repeat:no-repeat";
+        /* TIME INFO */
+        $time = $tweet_details['time_stamp'];                       //the time of the tweet
+        $date = date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), 
+                $time + ( get_option('gmt_offset') * 3600 )  );     //the local time based on the GMT offset
+        $time_ago = $this->how_long_ago( $time );                   //the friendly version of the time e.g. "1 minute ago"
 
-        $id = $args['id'];
+        /* SOURCE of the tweet */
+        $source = $tweet_details['source'];
+        preg_match( '`<a href="(http(s|)://[\w#!$&+,\/:;=?@.-]+)[^\w#!$&+,\/:;=?@.-]*?" rel="nofollow">(.*?)</a>`i', $source, $matches );
+        if( ! empty( $matches[1] ) || ! empty( $matches[3]) )
+            $source = '<a href="' . esc_url( $matches[1] ). '" rel="nofollow" target="blank">' . esc_html( $matches[3] ) . '</a>';
+        else
+            $source = esc_html( $source );
 
-        $url = "http://twitter.com/#!/{$args['screen_name']}/status/{$id}";
+        //the plugin's base URL
+        $base_url = BBP_URL;
 
-        $profile_url = "http://twitter.com/#!/{$args['screen_name']}";
-		//if(is_feed())
+        // Tweet Action Urls
+        $retweet_url = esc_url( "https://twitter.com/intent/retweet?tweet_id={$id}" );
+        $reply_url = esc_url( "https://twitter.com/intent/tweet?in_reply_to={$id}" );
+        $favorite_url = esc_url( "https://twitter.com/intent/favorite?tweet_id={$id}" );
+
+        // If we have a Twitter handle for this post author then we can mark them as 'related' to this tweet
+        if ( !empty ( $this->handles[$post->post_author] ) ) {
+            $retweet_url .= "&related=" . $this->handles[$post->post_author];
+            $reply_url .= "&related=" . $this->handles[$post->post_author];
+            $favorite_url .= "&related=" . $this->handles[$post->post_author];
+        }
+
+        $tweet = $tweet_details['tweet_text'];
+		
         $tweetHTML = "<!-- tweet id : $id -->
         <style type='text/css'>
-            #bbpBox_$id a { text-decoration:none; color:#{$args['profile_link_color']} !important; }
+            #bbpBox_$id a { text-decoration:none; color:#{$profile_link_color}; }
             #bbpBox_$id a:hover { text-decoration:underline; }
         </style>
-        <div id='bbpBox_$id' class='bbpBox' style='padding:20px; margin:5px 0; background-color:#{$args['profile_bg_color']}; background-image:url({$args['profile_bg_image']});$profile_bg_tile_HTML'><div style='background:#fff; padding:10px; margin:0; min-height:48px; color:#{$args['profile_text_color']}; -moz-border-radius:5px; -webkit-border-radius:5px;'><span style='width:100%; font-size:18px; line-height:22px;'>{$args['tweet_text']}</span><div style='font-size:12px; width:100%; padding:5px 0; margin:0 0 10px 0; border-bottom:1px solid #e6e6e6;'><a title='tweeted on {$args['friendly_date']}' href='{$url}'>{$args['time_ago']}</a> via {$args['source']}</div><div style='float:left; padding:0; margin:0'><a href='{$profile_url}'><img style='width:48px; height:48px; padding-right:7px; border:none; margin:0' src='{$args['profile_pic']}' /></a></div><div style='float:left; padding:0; margin:0'><a style='font-weight:bold' href='{$profile_url}'>@{$args['screen_name']}</a><div style='margin:0; padding-top:2px'>{$args['real_name']}</div></div><div style='clear:both'></div></div></div>
+        <div id='bbpBox_$id' class='bbpBox' style='padding:20px; margin:5px 0; background-color:#{$profile_bg_color}; background-image:url({$profile_bg_image});{$profile_bg_tile_HTML}'>
+            <div style='background:#fff; padding:10px; margin:0; min-height:48px; color:#{$profile_text_color}; -moz-border-radius:5px; -webkit-border-radius:5px;'>
+                <span style='width:100%; font-size:18px; line-height:22px;'>
+                    {$tweet}
+                </span>
+                <div class='bbp-actions' style='font-size:12px; width:100%; padding:5px 0; margin:0 0 10px 0; border-bottom:1px solid #e6e6e6;'>
+                    <img align='middle' src='{$base_url}/images/bird.png' />
+                    <a title='tweeted on {$date}' href='{$url}' target='_blank'>{$time_ago}</a> via {$source}
+                    <a href='https://twitter.com/intent/tweet?in_reply_to={$id}' class='bbp-action bbp-reply-action' title='Reply'>
+                        <span><em style='margin-left: 1em;'></em><strong>Reply</strong></span>
+                    </a>
+                    <a href='https://twitter.com/intent/retweet?tweet_id={$id}' class='bbp-action bbp-retweet-action' title='Retweet'>
+                        <span><em style='margin-left: 1em;'></em><strong>Retweet</strong></span>
+                    </a>
+                    <a href='https://twitter.com/intent/favorite?tweet_id={$id}' class='bbp-action bbp-favorite-action' title='Favorite'>
+                        <span><em style='margin-left: 1em;'></em><strong>Favorite</strong></span>
+                    </a>
+                </div>
+                <div style='float:left; padding:0; margin:0'>
+                    <a href='{$profile_url}'>
+                        <img style='width:48px; height:48px; padding-right:7px; border:none; margin:0' src='{$profile_pic}' />
+                    </a>
+                </div>
+                <div style='float:left; padding:0; margin:0'>
+                    <a style='font-weight:bold' href='{$profile_url}'>@{$name}</a>
+                    <div style='margin:0; padding-top:2px'>{$real_name}</div>
+                </div>
+                <div style='clear:both'></div>
+            </div>
+        </div>
         <!-- end of tweet -->";
+
+        //remove any extra spacing and line breaks
+        $tweetHTML = str_replace( "\r\n", '', $tweetHTML );
+        $tweetHTML = str_replace( "\n", '', $tweetHTML );
+        $tweetHTML = str_replace( "\t", '', $tweetHTML );
 
         return $tweetHTML;
     }
 
+    /**
+     * Converts a normal line of text containing twitter functionality (@username, #hashtag)
+     * into a 'linked' line of text
+     * Supports @usernames, #hashtags, and @lists/lists.
+     * Normal auto linking of links is already handled by WordPress
+     *
+     * code from twitter-black-pie WordPress.com plugin
+     *
+     * @param string $tweet The text to convert
+     * @return string The linked text
+     */
+    function autolink( $tweet ) {
+        $tweet = make_clickable( $tweet );
+
+        // Autolink hashtags (example: #wordpress will link to the search apge)
+        $tweet = preg_replace(
+                '/(^|[^0-9A-Z&\/]+)(#|\xef\xbc\x83)([0-9A-Z_]*[A-Z_]+[a-z0-9_\xc0-\xd6\xd8-\xf6\xf8\xff]*)/iu',
+                '${1}<a href="http://twitter.com/search?q=%23${3}" title="#${3}">${2}${3}</a>',
+                $tweet
+        );
+
+        // Autolink just usernames (example: @justinshreve)
+        $tweet = preg_replace(
+                '/([^a-zA-Z0-9_]|^)([@\xef\xbc\xa0]+)([a-zA-Z0-9_]{1,20})(\/[a-zA-Z][a-zA-Z0-9\x80-\xff-]{0,79})?/u',
+                '${1}@<a href="http://twitter.com/intent/user?screen_name=${3}" class="twitter-action">${3}</a>',
+                $tweet
+        );
+
+        // Autolink lists (example: @justinshreve/wordpress-people)
+        $tweet = preg_replace(
+                '$([@|＠])([a-z0-9_]{1,20})(/[a-z][a-z0-9\x80-\xFF-]{0,79})?$i',
+                '${1}<a href="http://twitter.com/${2}${3}">${2}${3}</a>',
+                $tweet
+        );
+
+        return $tweet;
+    }
+
+	/*
+	found here : http://www.php.net/manual/en/function.htmlentities.php#92105
+	*/
+	function UTF8entities($content) {
+		$contents = $this->unicode_string_to_array($content);
+		$swap = "";
+		$iCount = count($contents);
+		for ($o=0;$o<$iCount;$o++) {
+			$contents[$o] = $this->unicode_entity_replace($contents[$o]);
+			$swap .= $contents[$o];
+		}
+		if ( function_exists('mb_convert_encoding') )
+			return mb_convert_encoding( $swap, "UTF-8" ); //not really necessary, but why not.
+		else
+			return utf8_encode( $swap );
+	}
+
+	function unicode_string_to_array( $string ) { //adjwilli
+		if ( function_exists('mb_strlen') )
+			$strlen = mb_strlen($string);
+		else
+			$strlen = strlen($string);
+		while ($strlen) {
+			$array[] = mb_substr( $string, 0, 1, "UTF-8" );
+			$string = mb_substr( $string, 1, $strlen, "UTF-8" );
+			if ( function_exists('mb_strlen') )
+				$strlen = mb_strlen( $string );
+			else
+				$strlen = strlen( $string );
+		}
+		return $array;
+	}
+
+	function unicode_entity_replace($c) { //m. perez 
+		$h = ord($c{0});    
+		if ($h <= 0x7F) { 
+			return $c;
+		} else if ($h < 0xC2) { 
+			return $c;
+		}
+		
+		if ($h <= 0xDF) {
+			$h = ($h & 0x1F) << 6 | (ord($c{1}) & 0x3F);
+			$h = "&#" . $h . ";";
+			return $h; 
+		} else if ($h <= 0xEF) {
+			$h = ($h & 0x0F) << 12 | (ord($c{1}) & 0x3F) << 6 | (ord($c{2}) & 0x3F);
+			$h = "&#" . $h . ";";
+			return $h;
+		} else if ($h <= 0xF4) {
+			$h = ($h & 0x0F) << 18 | (ord($c{1}) & 0x3F) << 12 | (ord($c{2}) & 0x3F) << 6 | (ord($c{3}) & 0x3F);
+			$h = "&#" . $h . ";";
+			return $h;
+		}
+	}	
+
     function get_tweet_details($id) {
-        include_once('json.php');
 
         $request_url = "http://api.twitter.com/1/statuses/show.json?id={$id}";
 
-        if(!class_exists('WP_Http'))
-            include_once(ABSPATH . WPINC . '/class-http.php');
-
         $request = new WP_Http;
+        
         $result = $request->request($request_url);
 
         if (gettype($result) == "object" && get_class($result) == "WP_Error")

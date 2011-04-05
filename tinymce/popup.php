@@ -38,18 +38,20 @@ if ( !is_user_logged_in() || !current_user_can('edit_posts') )
 		if (panel1.className.indexOf('current') != -1) {
 			var tweeturl = document.getElementById('tweeturl').value;
 				
-			if (tweeturl != '' )
-				tagtext = '[blackbirdpie url="' + tweeturl + '"]';
-			else
-				tinyMCEPopup.close();
+			if (tweeturl != '' ) {
+                            tagtext = '[blackbirdpie url="' + tweeturl + '"]';
+                        } else {
+                            tinyMCEPopup.close();
+                        }
 				
 		} else if (panel2.className.indexOf('current') != -1) {
 			var tweetid = document.getElementById('tweetid').value;
 			
-			if (tweetid != '' )
-				tagtext = '[blackbirdpie id="' + tweetid + '"]'; 
-			else
-				tinyMCEPopup.close();
+			if (tweetid != '' ) {
+                            tagtext = '[blackbirdpie id="' + tweetid + '"]';
+                        } else {
+                            tinyMCEPopup.close();
+                        }
 		}
 		
 		if(window.tinyMCE) {
