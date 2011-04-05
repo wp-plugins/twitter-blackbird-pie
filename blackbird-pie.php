@@ -73,19 +73,29 @@ class BlackbirdPie {
             add_action( 'wp_enqueue_scripts', array( &$this, 'load_scripts'), 20 );
             add_action( 'wp_print_styles', array( &$this, 'load_styles'), 20 );
 
-            if ( ! $handles_cache = wp_cache_get( 'twitter-handles' ) ) {
+			if ( function_exists('get_user_meta') ) {
+			
+				if ( ! $handles_cache = wp_cache_get( 'twitter-handles' ) ) {
 
-                foreach ( get_users() as $user ) {
-                    $user_id = intval( $user->ID );
-                    $handle = get_user_meta( $user_id, 'twitter', true );
-                    if ( !empty( $handle ) )
-                        $this->handles[$user_id] = str_replace( 'http://twitter.com/', '', $handle );
-                }
+					if ( function_exists('get_users') ) {
+						$users = get_users();
+					} else {
+						$users = get_users_of_blog();
+					}
+					
+					foreach ( $users as $user ) {
+						$user_id = intval( $user->ID );
+						$handle = get_user_meta( $user_id, 'twitter', true );
+						if ( !empty( $handle ) )
+							$this->handles[$user_id] = str_replace( 'http://twitter.com/', '', $handle );
+					}
 
-                wp_cache_set( 'twitter-handles', $this->handles );
-            } else {
-                $this->handles = $handles_cache;
-            }
+					wp_cache_set( 'twitter-handles', $this->handles );
+				} else {
+					$this->handles = $handles_cache;
+				}
+			
+			}
         }
 
         return;
