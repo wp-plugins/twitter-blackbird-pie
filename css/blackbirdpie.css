@@ -10,3 +10,4 @@
 .bbp-actions .bbp-retweet-action:hover span em{background-position:-96px 0;}
 .bbp-actions .bbp-favorite-action span em{background-position:-32px 0;}
 .bbp-actions .bbp-favorite-action:hover span em{background-position:-48px 0;}
+.bbp-actions img { margin:0 !important; padding: 0 !important; background:none !important; border:none !important;}

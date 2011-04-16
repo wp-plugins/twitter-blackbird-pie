@@ -3,7 +3,7 @@
 Plugin Name: Blackbird Pie
 Plugin URI: http://themergency.com/plugins/twitter-blackbird-pie/
 Description: Add tweet visualizations to your site as can be found at http://media.twitter.com/blackbird-pie/. 
-Version: 0.5.0.1
+Version: 0.5.1
 Author: Brad Vincent
 Author URI: http://themergency.com
 License: GPL2
@@ -14,7 +14,7 @@ class BlackbirdPie {
     /**
      * Stores the Twitter handles for the users on the current blog.
      */
-    private $handles = array();
+    var $handles = array();
 
     //constructor
     function BlackbirdPie() {
@@ -26,8 +26,6 @@ class BlackbirdPie {
         if(!class_exists('WP_Http'))
             include_once(ABSPATH . WPINC . '/class-http.php');
 
-        include_once(BBP_DIR . 'includes/json.php');
-
         if (!is_admin()) {
             //register shortcode
             add_shortcode(BBP_NAME, array(&$this, 'shortcode'));
@@ -36,9 +34,21 @@ class BlackbirdPie {
 
             add_action( 'wp_head', array( &$this, 'embed_head'), -1 );
         } else {
+            //setup twitter contact info in my profile screen
+            add_filter( 'user_contactmethods', array(&$this, 'twitter_contactmethod'), 10, 1 );
+
             //setup WYSIWYG editor
             $this->add_editor_button();
         }
+    }
+
+    function twitter_contactmethod( $contactmethods ) {
+        if ( empty( $contactmethods['twitter'] ) ) {
+            // Add Twitter
+            $contactmethods['twitter'] = 'Twitter';
+        }
+
+        return $contactmethods;
     }
 
     /**
@@ -73,29 +83,29 @@ class BlackbirdPie {
             add_action( 'wp_enqueue_scripts', array( &$this, 'load_scripts'), 20 );
             add_action( 'wp_print_styles', array( &$this, 'load_styles'), 20 );
 
-			if ( function_exists('get_user_meta') ) {
-			
-				if ( ! $handles_cache = wp_cache_get( 'twitter-handles' ) ) {
+            if ( function_exists('get_user_meta') ) {
 
-					if ( function_exists('get_users') ) {
-						$users = get_users();
-					} else {
-						$users = get_users_of_blog();
-					}
-					
-					foreach ( $users as $user ) {
-						$user_id = intval( $user->ID );
-						$handle = get_user_meta( $user_id, 'twitter', true );
-						if ( !empty( $handle ) )
-							$this->handles[$user_id] = str_replace( 'http://twitter.com/', '', $handle );
-					}
+                if ( ! $handles_cache = wp_cache_get( 'twitter-handles' ) ) {
 
-					wp_cache_set( 'twitter-handles', $this->handles );
-				} else {
-					$this->handles = $handles_cache;
-				}
-			
-			}
+                    if ( function_exists('get_users') ) {
+                        $users = get_users();
+                    } else {
+                        $users = get_users_of_blog();
+                    }
+
+                    foreach ( $users as $user ) {
+                        $user_id = intval( $user->ID );
+                        $handle = get_user_meta( $user_id, 'twitter', true );
+                        if ( !empty( $handle ) )
+                            $this->handles[$user_id] = str_replace( 'http://twitter.com/', '', $handle );
+                    }
+
+                    wp_cache_set( 'twitter-handles', $this->handles );
+                } else {
+                    $this->handles = $handles_cache;
+                }
+
+            }
         }
 
         return;
@@ -117,7 +127,7 @@ class BlackbirdPie {
      * original code from twitter-blackbird-pie WordPress.com plugin
      */
     function load_styles() {
-        wp_register_style( BBP_NAME . '-css', BBP_URL . 'css/blackbirdpie.css',  array(), '20110404' );
+        wp_register_style( BBP_NAME . '-css', BBP_URL . 'css/blackbirdpie.css',  array(), '20110416' );
         wp_enqueue_style( BBP_NAME . '-css' );
     }
 	
@@ -173,11 +183,6 @@ class BlackbirdPie {
         return $output;
     }
 	
-    function decode($value) {
-        $json = new Services_JSON();
-        return $json->decode($value);
-    }
-
     function shortcode($atts) {
 
         // Extract the attributes
@@ -330,19 +335,19 @@ class BlackbirdPie {
                 <div class='bbp-actions' style='font-size:12px; width:100%; padding:5px 0; margin:0 0 10px 0; border-bottom:1px solid #e6e6e6;'>
                     <img align='middle' src='{$base_url}/images/bird.png' />
                     <a title='tweeted on {$date}' href='{$url}' target='_blank'>{$time_ago}</a> via {$source}
-                    <a href='https://twitter.com/intent/tweet?in_reply_to={$id}' class='bbp-action bbp-reply-action' title='Reply'>
+                    <a href='{$reply_url}' class='bbp-action bbp-reply-action' title='Reply'>
                         <span><em style='margin-left: 1em;'></em><strong>Reply</strong></span>
                     </a>
-                    <a href='https://twitter.com/intent/retweet?tweet_id={$id}' class='bbp-action bbp-retweet-action' title='Retweet'>
+                    <a href='{$retweet_url}' class='bbp-action bbp-retweet-action' title='Retweet'>
                         <span><em style='margin-left: 1em;'></em><strong>Retweet</strong></span>
                     </a>
-                    <a href='https://twitter.com/intent/favorite?tweet_id={$id}' class='bbp-action bbp-favorite-action' title='Favorite'>
+                    <a href='{$favorite_url}' class='bbp-action bbp-favorite-action' title='Favorite'>
                         <span><em style='margin-left: 1em;'></em><strong>Favorite</strong></span>
                     </a>
                 </div>
                 <div style='float:left; padding:0; margin:0'>
                     <a href='{$profile_url}'>
-                        <img style='width:48px; height:48px; padding-right:7px; border:none; margin:0' src='{$profile_pic}' />
+                        <img style='width:48px; height:48px; padding-right:7px; border:none; background:none; margin:0' src='{$profile_pic}' />
                     </a>
                 </div>
                 <div style='float:left; padding:0; margin:0'>
@@ -355,9 +360,7 @@ class BlackbirdPie {
         <!-- end of tweet -->";
 
         //remove any extra spacing and line breaks
-        $tweetHTML = str_replace( "\r\n", '', $tweetHTML );
-        $tweetHTML = str_replace( "\n", '', $tweetHTML );
-        $tweetHTML = str_replace( "\t", '', $tweetHTML );
+        $tweetHTML = preg_replace( '/\s*[\r\n\t]+\s*/', '', $tweetHTML );
 
         return $tweetHTML;
     }
@@ -467,7 +470,7 @@ class BlackbirdPie {
         if (gettype($result) == "object" && get_class($result) == "WP_Error")
             return NULL;
 
-        return $this->decode($result["body"]);
+        return json_decode($result["body"]);
     }
 
     function blackbirdpie_embed_handler( $matches, $attr, $url, $rawattr ) {
@@ -475,7 +478,19 @@ class BlackbirdPie {
     }
 }
 
-add_action("init", create_function('', 'global $BlackbirdPie; $BlackbirdPie = new BlackbirdPie();'));
+if (!function_exists('json_decode')) {
+    function json_decode($content, $assoc=false) {
+        require_once ( dirname(__FILE__) . '/includes/json.php' );
+        if ($assoc) {
+            $json = new Services_JSON(SERVICES_JSON_LOOSE_TYPE);
+        }
+        else {
+            $json = new Services_JSON;
+        }
+        return $json->decode($content);
+    }
+}
 
+add_action("init", create_function('', 'global $BlackbirdPie; $BlackbirdPie = new BlackbirdPie();'));
 
 ?>

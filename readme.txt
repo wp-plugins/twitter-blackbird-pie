@@ -3,8 +3,8 @@ Contributors: bradvin
 Donate link: http://themergency.com/donate/
 Tags: twitter, blackbird pie, blackbirdpie
 Requires at least: 3.0
-Tested up to: 3.1
-Stable tag: 0.5.0.1
+Tested up to: 3.1.1
+Stable tag: 0.5.1
 
 Add awesome looking embedded HTML representations of actual tweets in your blog posts just by adding simple shortcodes.
 
@@ -47,8 +47,15 @@ The plugins has the following features:
 2. Easily embed your tweet from the HTML editor
 3. Search someone's twitter timeline to pick which tweet to embed
 4. Tweets look pretty from RSS readers now :)
+5. Twitter field added to WordPress user profile
 
 == Changelog ==
+
+= 0.5.1 =
+* Adds a twitter field in the user profile page so each user can capture their twitter username. This username is then used as the 'related' user for web intents. 
+* Included fix to allow for PHP 4 (replaced private variable declarations with var)
+* included a json_decode override so the default is used on PHP 5 and falls back to function if PHP 4
+* made some changes to the output tweet HTML and fixed up some CSS styling issues
 
 = 0.5 =
 * Included support for Twitter Web Intents
