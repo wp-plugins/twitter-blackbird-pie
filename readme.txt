@@ -3,7 +3,7 @@ Contributors: bradvin
 Donate link: http://themergency.com/donate/
 Tags: twitter, blackbird pie, blackbirdpie
 Requires at least: 3.0
-Tested up to: 3.1.1
+Tested up to: 3.2
 Stable tag: 0.5.1
 
 Add awesome looking embedded HTML representations of actual tweets in your blog posts just by adding simple shortcodes.
