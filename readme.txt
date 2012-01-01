@@ -4,7 +4,7 @@ Donate link: http://themergency.com/donate/
 Tags: twitter, blackbird pie, blackbirdpie
 Requires at least: 3.0
 Tested up to: 3.3
-Stable tag: 0.5.2
+Stable tag: 0.5.3
 
 Add awesome looking embedded HTML representations of actual tweets in your blog posts just by adding simple shortcodes.
 
@@ -48,6 +48,9 @@ The plugin has the following features:
 5. Twitter field added to WordPress user profile
 
 == Changelog ==
+
+= 0.5.3 =
+* Fixed bug where the URL shortcode was not working
 
 = 0.5.2 =
 * Removed donate button from popup in tinyMCE editor

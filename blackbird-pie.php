@@ -2,8 +2,8 @@
 /*
 Plugin Name: Blackbird Pie
 Plugin URI: http://themergency.com/plugins/twitter-blackbird-pie/
-Description: Add embedded tweets to your site. Demo : http://themergency.com/twitter-blackbird-pie-wordpress-plugin-demo/
-Version: 0.5.2
+Description: Add embedded tweets to your site. Demo http://themergency.com/twitter-blackbird-pie-wordpress-plugin-demo/
+Version: 0.5.3
 Author: Brad Vincent
 Author URI: http://themergency.com
 License: GPL2
@@ -163,14 +163,14 @@ class BlackbirdPie {
         extract(shortcode_atts(array(
             "id" => false,
             "url" => false,
-			"width" => false,
-			"user" => false
-        ), $atts));
+            "width" => false,
+            "user" => false
+              ), $atts));
 		
-		return $this->render_tweet( $id, $user, $width );
+        return $this->render_tweet( $id, $url, $user, $width );
     }
  
-	function render_tweet( $id, $user, $width ) {
+	function render_tweet( $id, $url, $user, $width ) {
 	
         //extract the status ID from $id (incase someone incorrectly used a shortcode like [blackbirdpie id="http://twitter..."])
         if ($id) {
